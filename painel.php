@@ -11,7 +11,7 @@ if($conexao->connect_errno > 0) {
 ?>
 <?php
     session_start();
-    if(!isset($_SESSION["usuario"])|| !isset($_SESSION["senha"]))
+    if(!isset($_SESSION["usuario"]))
     {
         header("Location:login.php");
         exit;

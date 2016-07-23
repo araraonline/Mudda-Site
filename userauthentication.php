@@ -36,7 +36,6 @@ $result = $stmt->get_result();
 if($result->num_rows > 0){
    session_start();
     $_SESSION['usuario'] = $_POST['usuario'];
-    $_SESSION['senha'] = $_POST['senha'];
     echo "<center>Logado com sucesso</center>";
     echo "<script>loginsuccessifully()</script>";
 }
