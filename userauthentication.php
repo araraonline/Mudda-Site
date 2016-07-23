@@ -4,8 +4,10 @@ $user = "root";
 $pass = "";
 $banco = "cadastro";
 
-$conexao = mysql_connect($host,$user,$pass) or die(mysql_error());
-mysql_select_db($banco) or die(mysql_error());
+$conexao = new mysqli($host, $user, $pass, $banco);
+if($conexao->connect_errno > 0) {
+    die("Erro ao conectar-se no banco de dados!");   // $conexao->connect_error pra debugar
+}
 ?>
 <html>
     <head>
@@ -26,9 +28,12 @@ mysql_select_db($banco) or die(mysql_error());
 $usuario=$_POST['usuario'];
 $senha=$_POST['senha'];
 
-$sql = mysql_query("SELECT * FROM usuarios WHERE usuario ='$usuario' AND senha='$senha'") or die(mysql_error());
-$row = mysql_num_rows($sql);
-if($row>0){
+$stmt = $conexao->prepare("SELECT * FROM usuarios WHERE usuario = ? AND senha = ?");  // stmt - statement
+$stmt->bind_param('ss',  $usuario, $senha);
+$stmt->execute();
+
+$result = $stmt->get_result();
+if($result->num_rows > 0){
    session_start();
     $_SESSION['usuario'] = $_POST['usuario'];
     $_SESSION['senha'] = $_POST['senha'];

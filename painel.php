@@ -4,8 +4,10 @@ $user = "root";
 $pass = "";
 $banco = "cadastro";
 
-$conexao = mysql_connect($host,$user,$pass) or die(mysql_error());
-mysql_select_db($banco) or die(mysql_error());
+$conexao = new mysqli($host, $user, $pass, $banco);
+if($conexao->connect_errno > 0) {
+    die("Erro ao conectar-se no banco de dados!");   // $conexao->connect_error pra debugar
+}
 ?>
 <?php
     session_start();
