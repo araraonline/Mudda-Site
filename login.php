@@ -24,7 +24,7 @@
         <form name="loginform" method="post" action="userauthentication.php">
         Usuario: <input type="text" name="usuario"/> <br/> <br/>
         Senha:&nbsp;&nbsp;   <input type="password" name="senha"/> <br/> <br/>
-        <center><input type="submit" value="Entrar"/></center>        
+        <center><input type="submit" value="Entrar"/></center>            
         </form>
         </div>
     </body>
