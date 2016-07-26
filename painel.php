@@ -1,17 +1,9 @@
 <?php
-<<<<<<< HEAD
 header('Content-type: text/html; charset=utf-8');  
 $host = "176.32.230.251";
 $user = "cl57-mudda";
 $pass = "Mudda#5656";
 $banco = "cl57-mudda";
-=======
-$host = "localhost";
-$user = "root";
-$pass = "";
-$banco = "cadastro";
-
->>>>>>> 1dc5d74b7edfcc34882d9e3340629b079189dbc7
 $conexao = new mysqli($host, $user, $pass, $banco);
 if($conexao->connect_errno > 0) {
     die("Erro ao conectar-se no banco de dados!");   // $conexao->connect_error pra debugar
