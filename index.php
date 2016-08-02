@@ -16,10 +16,64 @@ require_once "inc/time.php";
         <meta charset="utf-8" />
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" type="text/css" href="css/style.css">
         <title>Inbox System</title>
     </head>
     
     <body>
+    <?php
+    if(isset($_GET['msg'])){
+    	$id = $_GET['msg'];
+    	$stmt = $conexao->prepare("SELECT * FROM messages WHERE id = ?");
+    	$stmt->bind_param('i',$id);
+    	$stmt->execute();
+    	$result = $stmt->get_result();
+    	$stmt->close();
+    	$stmt = $conexao->prepare("UPDATE messages SET open='1' WHERE id = ?");
+    	$stmt->bind_param('i',$id);
+    	$stmt->execute();
+    	$stmt->close();
+    	$row = $result->fetch_assoc();
+    	$from = $row['from'];
+		$email = $row['email'];
+		$subject = $row['subject'];
+		$date = $row['date'];
+		$time = time_passed($row['time']);
+		$message = utf8_encode($row['message']); 
+     ?>
+     <div id="msg">
+     	<a class="back" href="./">←Retornar</a>
+     	<table>
+     		<tr>
+     			<td>Remetente :<?php echo $from; ?></td>
+     			<td>Email :<?php echo $email; ?></td>
+     			<td>Data :<?php echo $date; ?></td>
+     			<td>Tempo :<?php echo $time; ?></td>
+     		</tr>
+     	</table>
+     	<pre><?php echo $message; ?></pre>
+     	<a class="remove" href="?remove=<?php echo $id;?>"> Deletar a mensagem </a>
+     </div>
+     <?php exit();}?>
+     <?php 
+     	if(isset($_GET['remove']))
+     	{
+     		$id = $_GET['remove'];
+     		$stmt = $conexao->prepare("DELETE FROM messages WHERE id = ?");
+    		$stmt->bind_param('i',$id);
+    		$remove = $stmt->execute();
+    		if ($remove)
+    		{
+    			echo '<script>window.location="./";</script>';
+    		}
+    		else
+    		{
+    			die("Da refresh na pagina ae!");
+    		}
+    		$stmt->close();
+     		exit();
+     	}
+      ?>
     <table>
     	<tr>
     		<th>#</th>
@@ -30,9 +84,28 @@ require_once "inc/time.php";
     		<th>Visto</th>
     	</tr>
     		<?php
-				$stmt = $conexao->prepare("SELECT * FROM messages");  // stmt - statement
+    			// pegar numero de rows
+    			$limit = 5;
+    			$p = $_GET['p'];
+    			$stmt = $conexao->prepare("SELECT * FROM messages");
+				$stmt->execute();
+				$result = $stmt->get_result();	
+				$getNumberRows = $result->num_rows;
+    			$total = ceil($getNumberRows/$limit);
+
+				if(!isset($p) || $p <=0){
+					$offset = 0;
+				}
+				else {
+					$offset = ceil($p - 1) * $limit;
+				}
+				$stmt->close();
+				// filtrar a partir do numero de rows 
+				$stmt = $conexao->prepare("SELECT * FROM messages LIMIT ?,?");
+				$stmt->bind_param('ii',$offset,$limit);  // stmt - statement
 				$stmt->execute();
 				$result = $stmt->get_result();
+
 				while($row = $result->fetch_assoc())
 				{
 					$id = $row['id'];
@@ -48,17 +121,29 @@ require_once "inc/time.php";
 						$open = "Opened";
 					}
 					echo '<tr>';
-						echo '<td>'.$id.'</td>';
-						echo '<td>'.$from.'</td>';
-						echo '<td>'.$email.'</td>';
-						echo '<td>'.$subject.'</td>';
-						echo '<td>'.$date.'-'.$time.'</td>';
-						echo '<td>'.$open.'</td>';
+						echo '<td><a href="?msg='.$id.'">'.$id.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$from.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$email.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$subject.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$date.'-'.$time.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$open.'</a></td>';
 					echo '<tr>';
 				}
+				$stmt->close();
 			?>
 
     </table>
+    <?php 
+    if($getNumberRows > $limit){
+    echo '<div id="pages">';
+    	for($i=1;$i <=$total;$i++)
+		{
+
+			echo  ($i == $p) ? '<a  class="active">'.$i.'</a>' : '<a href="?p='.$i.'">'.$i.'</a>';
+		}
+	echo '</div>';	
+}
+     ?>
     </body>
     
 </html>
