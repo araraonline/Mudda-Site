@@ -94,20 +94,22 @@ require_once "inc/time.php";
     			$total = ceil($getNumberRows/$limit);
 
 				if(!isset($p) || $p <=0){
+					$counter = 0;
 					$offset = 0;
 				}
 				else {
 					$offset = ceil($p - 1) * $limit;
+					$counter = (5 * $p) - 5;
 				}
 				$stmt->close();
 				// filtrar a partir do numero de rows 
-				$stmt = $conexao->prepare("SELECT * FROM messages LIMIT ?,?");
+				$stmt = $conexao->prepare("SELECT * FROM messages ORDER BY id DESC LIMIT ?,?");
 				$stmt->bind_param('ii',$offset,$limit);  // stmt - statement
 				$stmt->execute();
 				$result = $stmt->get_result();
-
 				while($row = $result->fetch_assoc())
 				{
+					$counter++;
 					$id = $row['id'];
 					$from = $row['from'];
 					$email = $row['email'];
@@ -121,7 +123,7 @@ require_once "inc/time.php";
 						$open = "Opened";
 					}
 					echo '<tr>';
-						echo '<td><a href="?msg='.$id.'">'.$id.'</a></td>';
+						echo '<td><a href="?msg='.$id.'">'.$counter.'</a></td>';
 						echo '<td><a href="?msg='.$id.'">'.$from.'</a></td>';
 						echo '<td><a href="?msg='.$id.'">'.$email.'</a></td>';
 						echo '<td><a href="?msg='.$id.'">'.$subject.'</a></td>';
@@ -133,13 +135,20 @@ require_once "inc/time.php";
 			?>
 
     </table>
-    <?php 
+    <?php
+    $test = 1;
     if($getNumberRows > $limit){
     echo '<div id="pages">';
     	for($i=1;$i <=$total;$i++)
 		{
-
-			echo  ($i == $p) ? '<a  class="active">'.$i.'</a>' : '<a href="?p='.$i.'">'.$i.'</a>';
+			if((!isset($p)||$p<=0) && $i==1)
+			{
+    		echo  '<a  class="active">'.$i.'</a>';
+    		}
+			else
+			{
+				echo  ($i == $p) ? '<a  class="active">'.$i.'</a>' : '<a href="?p='.$i.'">'.$i.'</a>';
+			}
 		}
 	echo '</div>';	
 }
